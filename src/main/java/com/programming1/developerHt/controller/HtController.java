@@ -1,14 +1,13 @@
 package com.programming1.developerHt.controller;
 
 import com.programming1.developerHt.dto.CreateDeveloper;
+import com.programming1.developerHt.dto.DeveloperDetailDto;
 import com.programming1.developerHt.dto.DeveloperDto;
+import com.programming1.developerHt.dto.EditDeveloper;
 import com.programming1.developerHt.service.DeveloperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
@@ -24,9 +23,16 @@ public class HtController {
     @GetMapping("/developers")
     public List<DeveloperDto> getAllDevelopers() {
         log.info("Get/developers Http/1.1");
-        return Arrays.asList("snow", "Elsa", "Olaf");
+        return developerService.getAllDevelopers();
     }
 
+    @GetMapping("/developer/{memberId}")
+    public DeveloperDetailDto getDeveloperDetail(
+            @PathVariable String memberId
+    ) {
+        log.info("Get/developers Http/1.1");
+        return developerService.getDeveloperDetail(memberId);
+    }
 
     @PostMapping("/create-developers")
     public CreateDeveloper.Response createDevelopers(
@@ -37,4 +43,18 @@ public class HtController {
         return developerService.createDeveloper(request);
     }
 
+    @PutMapping("/developer/{memberId}")
+    public DeveloperDetailDto editDeveloper(
+            @PathVariable String memberId,
+            @Valid @RequestBody EditDeveloper.Request request
+    ) {
+        log.info("Get/developers Http/1.1");
+
+        return developerService.editDeveloper(memberId, request);
+    }
+
+    @DeleteMapping("/developer/{memberId}")
+    public DeveloperDetailDto deleteDeveloper(@PathVariable String memberId){
+        return developerService.deleteDeveloper(memberId);
+    }
 }

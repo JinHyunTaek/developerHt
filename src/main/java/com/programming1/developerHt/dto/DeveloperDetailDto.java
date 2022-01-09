@@ -5,21 +5,30 @@ import com.programming1.developerHt.type.DeveloperLevel;
 import com.programming1.developerHt.type.DeveloperSkillType;
 import lombok.*;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DeveloperDto {
+public class DeveloperDetailDto {
     private DeveloperLevel developerLevel;
     private DeveloperSkillType developerSkillType;
+    private Integer experienceYears;
     private String memberId;
+    private String name;
+    private Integer age;
 
-    public static DeveloperDto fromEntity(Developer developer){
-        return DeveloperDto.builder()
+    public static DeveloperDetailDto fromEntity(Developer developer){
+        return DeveloperDetailDto.builder()
                 .developerLevel(developer.getDeveloperLevel())
                 .developerSkillType(developer.getDeveloperSkillType())
+                .experienceYears(developer.getExperienceYears())
                 .memberId(developer.getMemberId())
+                .name(developer.getName())
+                .age(developer.getAge())
                 .build();
     }
 }
