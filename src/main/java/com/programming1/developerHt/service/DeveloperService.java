@@ -27,8 +27,8 @@ public class DeveloperService {
                 .developerLevel(request.getDeveloperLevel())
                 .developerSkillType(request.getDeveloperSkillType())
                 .experienceYears(request.getExperienceYears())
-                .age(request.getAge())
                 .name(request.getName())
+                .age(request.getAge())
                 .build();
 
         developerRepository.save(developer); //DB에 저장
