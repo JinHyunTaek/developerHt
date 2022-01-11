@@ -10,5 +10,4 @@ import java.util.Optional;
 @Repository
 public interface RetiredDeveloperRepository
 extends JpaRepository<RetiredDeveloper,Long> {
-    Optional<Developer> findMemberId(String memberId)
 }

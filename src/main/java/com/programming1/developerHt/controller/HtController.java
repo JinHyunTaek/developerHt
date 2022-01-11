@@ -1,14 +1,14 @@
 package com.programming1.developerHt.controller;
 
-import com.programming1.developerHt.dto.CreateDeveloper;
-import com.programming1.developerHt.dto.DeveloperDetailDto;
-import com.programming1.developerHt.dto.DeveloperDto;
-import com.programming1.developerHt.dto.EditDeveloper;
+import com.programming1.developerHt.dto.*;
+import com.programming1.developerHt.exception.DeveloperException;
 import com.programming1.developerHt.service.DeveloperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,12 +23,12 @@ public class HtController {
     @GetMapping("/developers")
     public List<DeveloperDto> getAllDevelopers() {
         log.info("Get/developers Http/1.1");
-        return developerService.getAllDevelopers();
+        return developerService.getAllEmployedDevelopers();
     }
 
     @GetMapping("/developer/{memberId}")
     public DeveloperDetailDto getDeveloperDetail(
-            @PathVariable String memberId
+            @PathVariable final String memberId //request로 들어온 값 변경 방지
     ) {
         log.info("Get/developers Http/1.1");
         return developerService.getDeveloperDetail(memberId);
@@ -36,8 +36,8 @@ public class HtController {
 
     @PostMapping("/create-developers")
     public CreateDeveloper.Response createDevelopers(
-         @Valid @RequestBody CreateDeveloper.Request request
-            ) {
+            @Valid @RequestBody final CreateDeveloper.Request request
+    ) {
         log.info("request: {}", request);
 
         return developerService.createDeveloper(request);
@@ -45,8 +45,8 @@ public class HtController {
 
     @PutMapping("/developer/{memberId}")
     public DeveloperDetailDto editDeveloper(
-            @PathVariable String memberId,
-            @Valid @RequestBody EditDeveloper.Request request
+            @PathVariable final String memberId,
+            @Valid @RequestBody final EditDeveloper.Request request
     ) {
         log.info("Get/developers Http/1.1");
 
@@ -54,7 +54,9 @@ public class HtController {
     }
 
     @DeleteMapping("/developer/{memberId}")
-    public DeveloperDetailDto deleteDeveloper(@PathVariable String memberId){
+    public DeveloperDetailDto deleteDeveloper(@PathVariable String memberId) {
         return developerService.deleteDeveloper(memberId);
     }
+
+
 }

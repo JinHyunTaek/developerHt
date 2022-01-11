@@ -13,6 +13,7 @@ import com.programming1.developerHt.repository.DeveloperRepository;
 import com.programming1.developerHt.repository.RetiredDeveloperRepository;
 import com.programming1.developerHt.type.DeveloperLevel;
 import com.programming1.developerHt.type.DeveloperSkillType;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,17 +27,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class DeveloperService {
     private final DeveloperRepository developerRepository;
-
+    private final RetiredDeveloperRepository retiredDeveloperRepository;
     //DB 테이블에 INSERT할 내용들
     //트랜잭션 특성(ACID) 1. Atomic 2. Consistency 3. Isolation 4. Durability(지속성)
     @Transactional
     public CreateDeveloper.Response createDeveloper(CreateDeveloper.Request request){
+        validateCreateDeveloperRequest(request);
+
         Developer developer= Developer.builder() //Developer Class의 @Builder
                 .developerLevel(request.getDeveloperLevel())
                 .developerSkillType(request.getDeveloperSkillType())
                 .experienceYears(request.getExperienceYears())
                 .memberId(request.getMemberId())
-                .ststusCode(StatusCode.EMPLOYED)
+                .statusCode(StatusCode.EMPLOYED)
                 .name(request.getName())
                 .age(request.getAge())
                 .build();
@@ -45,7 +48,7 @@ public class DeveloperService {
         return CreateDeveloper.Response.fromEntity(developer);
     }
 
-    private void validateCreateDeveloperRequest(CreateDeveloper.Request request){
+    private void validateCreateDeveloperRequest(@NonNull CreateDeveloper.Request request){
         //business validation
         validateDeveloperLevel(request.getDeveloperLevel(), request.getExperienceYears());
 
@@ -70,13 +73,15 @@ public class DeveloperService {
         }
     }
 
-    public List<DeveloperDto> getAllDevelopers() {
+    @Transactional(readOnly = true) //get이긴 하지만 데이터 변경 방지(읽기 전용)
+    public List<DeveloperDto> getAllEmployedDevelopers() {
         //map: entity를 dto로 변경
-        return developerRepository.findAll()
+        return developerRepository.findDevelopersByStatusCodeEquals(StatusCode.EMPLOYED)
                 .stream().map(DeveloperDto::fromEntity)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public DeveloperDetailDto getDeveloperDetail(String memberId) {
         return developerRepository.findByMemberId(memberId)
                 .map(DeveloperDetailDto::fromEntity)
@@ -99,23 +104,16 @@ public class DeveloperService {
         return DeveloperDetailDto.fromEntity(developer);
     }
 
-    private void validateEditDeveloperRequest(EditDeveloper.Request request, String memberId) {
-        validateDeveloperLevel(request.getDeveloperLevel(),request.getExperienceYears());
-        developerRepository.findByMemberId(memberId).orElseThrow(
-                () -> new DeveloperException(DeveloperErrorCode.NO_DEVELOPER)
-        );
-    }
-
     private void validateDeveloperLevel(DeveloperLevel developerLevel, Integer experienceYears) {
         if(developerLevel ==DeveloperLevel.SENIOR
                 && experienceYears <10){
             throw new RuntimeException(DeveloperErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATHCED.getMessage());
         }
         if(developerLevel ==DeveloperLevel.MIDDLE
-                &&(experienceYears <4)|| experienceYears >10){
+                &&(experienceYears <4|| experienceYears >10)){
             throw new RuntimeException(DeveloperErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATHCED.getMessage());
         }
-        if(developerLevel ==DeveloperLevel.JUNIOR&& experienceYears >10){
+        if(developerLevel ==DeveloperLevel.JUNIOR&& experienceYears >4){
             throw new RuntimeException(DeveloperErrorCode.LEVEL_EXPERIENCE_YEARS_NOT_MATHCED.getMessage());
         }
     }
@@ -133,6 +131,7 @@ public class DeveloperService {
                 .memberId(memberId)
                 .name(developer.getName())
                 .build();
-        RetiredDeveloperRepository
+        retiredDeveloperRepository.save(retiredDeveloper);
+        return DeveloperDetailDto.fromEntity(developer);
     }
 }

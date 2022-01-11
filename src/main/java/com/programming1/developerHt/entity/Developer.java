@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Developer {
     //DB 테이블 create 시에 나오는 테이블 칼럼들 정의
-    @Id
+    @Id //primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
